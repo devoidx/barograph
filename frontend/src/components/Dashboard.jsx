@@ -1,6 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
 import { fetchCurrent } from '../api/weather'
 import CurrentConditions from './CurrentConditions'
+import HourlyForecast from './HourlyForecast'
+import DailyForecast from './DailyForecast'
 
 export default function Dashboard({ location }) {
   const { data, isLoading, error } = useQuery({
@@ -42,13 +44,17 @@ export default function Dashboard({ location }) {
     </div>
   )
 
+  const { forecast, air_quality } = data
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <CurrentConditions
-        forecast={data.forecast}
-        airQuality={data.air_quality}
+        forecast={forecast}
+        airQuality={air_quality}
         locationName={location.name}
       />
+      <HourlyForecast hourly={forecast.hourly} />
+      <DailyForecast daily={forecast.daily} />
     </div>
   )
 }
