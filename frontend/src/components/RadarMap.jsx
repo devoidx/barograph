@@ -27,14 +27,15 @@ export default function RadarMap({ location }) {
     const map = L.map(mapRef.current, {
       zoomControl: true,
       attributionControl: true,
-      maxZoom: 12,
+      minZoom: 4,
+      maxZoom: 8,
     })
     instanceRef.current = map
-    map.setView([location.lat, location.lon], 7)
+    map.setView([location.lat, location.lon], 6)
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors',
-      maxZoom: 12,
+      maxZoom: 8,
     }).addTo(map)
 
     L.circleMarker([location.lat, location.lon], {
@@ -55,7 +56,7 @@ export default function RadarMap({ location }) {
         const layers = frames.map(f =>
           L.tileLayer(
             `https://tilecache.rainviewer.com${f.path}/256/{z}/{x}/{y}/2/1_1.png`,
-            { opacity: 0.65, zIndex: 5, maxZoom: 12, attribution: 'RainViewer' }
+            { opacity: 0.65, zIndex: 5, maxZoom: 8, attribution: 'RainViewer' }
           )
         )
         layersRef.current = layers
