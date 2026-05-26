@@ -2,10 +2,18 @@ import { useEffect, useRef, useState } from 'react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
+function fmtRadarTime(ts) {
+  return new Date(ts * 1000).toLocaleTimeString('en-GB', {
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
+
 export default function RadarMap({ location }) {
   const mapRef = useRef(null)
   const instanceRef = useRef(null)
   const layersRef = useRef([])
+  const framesRef = useRef([])
   const animRef = useRef(null)
   const [playing, setPlaying] = useState(true)
   const [frameIdx, setFrameIdx] = useState(0)
@@ -39,10 +47,10 @@ export default function RadarMap({ location }) {
     fetch('https://api.rainviewer.com/public/weather-maps.json')
       .then(r => r.json())
       .then(data => {
-        const frames = [
-          ...data.radar.past.slice(-6),
-          ...(data.radar.nowcast || []).slice(0, 2),
-        ]
+        const past = data.radar.past.slice(-6)
+        const nowcast = (data.radar.nowcast || []).slice(0, 2)
+        const frames = [...past, ...nowcast]
+        framesRef.current = frames
         const layers = frames.map(f =>
           L.tileLayer(
             `https://tilecache.rainviewer.com${f.path}/256/{z}/{x}/{y}/2/1_1.png`,
@@ -61,6 +69,7 @@ export default function RadarMap({ location }) {
       map.remove()
       instanceRef.current = null
       layersRef.current = []
+      framesRef.current = []
     }
   }, [location.lat, location.lon])
 
@@ -91,6 +100,13 @@ export default function RadarMap({ location }) {
     })
   }
 
+  const pastCount = Math.min(6, frameCount)
+  const currentFrame = framesRef.current[frameIdx]
+  const isNowcast = frameIdx >= pastCount
+  const timeLabel = currentFrame
+    ? `${fmtRadarTime(currentFrame.time)}${isNowcast ? ' (forecast)' : ''}`
+    : ''
+
   return (
     <div style={{
       backgroundColor: 'var(--bg-card)',
@@ -113,11 +129,45 @@ export default function RadarMap({ location }) {
         }}>
           Rain Radar
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          {frameCount > 0 && (
-            <span style={{ fontSize: '11px', color: 'var(--text-hint)' }}>
-              Frame {frameIdx + 1}/{frameCount}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {timeLabel && (
+            <span style={{
+              fontSize: '12px',
+              fontWeight: '500',
+              color: isNowcast ? 'var(--warning)' : 'var(--text-primary)',
+              minWidth: '110px',
+              textAlign: 'center',
+            }}>
+              {timeLabel}
             </span>
+          )}
+          {/* Frame scrubber */}
+          {frameCount > 0 && (
+            <div style={{ display: 'flex', gap: '3px', alignItems: 'center' }}>
+              {Array.from({ length: frameCount }).map((_, i) => (
+                <div
+                  key={i}
+                  onClick={() => {
+                    if (!instanceRef.current) return
+                    instanceRef.current.removeLayer(layersRef.current[frameIdx])
+                    layersRef.current[i].addTo(instanceRef.current)
+                    setFrameIdx(i)
+                    setPlaying(false)
+                    if (animRef.current) clearInterval(animRef.current)
+                  }}
+                  style={{
+                    width: i === frameIdx ? '16px' : '8px',
+                    height: '4px',
+                    borderRadius: '2px',
+                    backgroundColor: i === frameIdx
+                      ? (i >= pastCount ? 'var(--warning)' : 'var(--accent)')
+                      : 'var(--border-strong)',
+                    cursor: 'pointer',
+                    transition: 'width 0.15s ease',
+                  }}
+                />
+              ))}
+            </div>
           )}
           <button
             onClick={togglePlay}
