@@ -2,6 +2,9 @@ from typing import Any
 
 import httpx
 
+from app.services.cache import get as cache_get
+from app.services.cache import set as cache_set
+
 BASE_FORECAST = "https://api.open-meteo.com/v1/forecast"
 BASE_ARCHIVE = "https://archive-api.open-meteo.com/v1/archive"
 BASE_AIR = "https://air-quality-api.open-meteo.com/v1/air-quality"
@@ -122,6 +125,11 @@ async def get_historical(
     start_date: str,
     end_date: str,
 ) -> dict[str, Any]:
+    cache_key = f"historical:{lat}:{lon}:{start_date}:{end_date}"
+    cached: dict[str, Any] | None = cache_get(cache_key)
+    if cached is not None:
+        return cached
+
     params: dict[str, str] = {
         "latitude": str(lat),
         "longitude": str(lon),
@@ -144,5 +152,6 @@ async def get_historical(
     async with httpx.AsyncClient(timeout=30.0) as client:
         resp = await client.get(BASE_ARCHIVE, params=params)
         resp.raise_for_status()
-        result: dict[str, Any] = resp.json()
-        return result
+        data: dict[str, Any] = resp.json()
+        cache_set(cache_key, data)
+        return data
