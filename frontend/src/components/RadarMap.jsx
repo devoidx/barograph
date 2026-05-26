@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
+import L from 'leaflet'
+import 'leaflet/dist/leaflet.css'
 
 export default function RadarMap({ location }) {
   const mapRef = useRef(null)
@@ -14,28 +16,22 @@ export default function RadarMap({ location }) {
     if (instanceRef.current) return
     if (!mapRef.current) return
 
-    const L = window.L
-    if (!L) return
-
-    const map = L.map(mapRef.current, { zoomControl: true, attributionControl: false })
+    const map = L.map(mapRef.current, {
+      zoomControl: true,
+      attributionControl: true,
+    })
     instanceRef.current = map
-
     map.setView([location.lat, location.lon], 7)
 
-    L.tileLayer(
-      'https://{s}.basemaps.cartocdn.com/dark_matter_nolabels/{z}/{x}/{y}{r}.png',
-      { subdomains: 'abcd', maxZoom: 19 }
-    ).addTo(map)
-
-    L.tileLayer(
-      'https://{s}.basemaps.cartocdn.com/dark_matter_only_labels/{z}/{x}/{y}{r}.png',
-      { subdomains: 'abcd', maxZoom: 19, zIndex: 10 }
-    ).addTo(map)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors',
+      maxZoom: 19,
+    }).addTo(map)
 
     L.circleMarker([location.lat, location.lon], {
-      radius: 6,
+      radius: 7,
       fillColor: '#4d9ef6',
-      color: '#fff',
+      color: '#ffffff',
       weight: 2,
       fillOpacity: 1,
     }).addTo(map)
@@ -45,16 +41,16 @@ export default function RadarMap({ location }) {
       .then(data => {
         const frames = [
           ...data.radar.past.slice(-6),
-          ...data.radar.nowcast.slice(0, 2),
+          ...(data.radar.nowcast || []).slice(0, 2),
         ]
         const layers = frames.map(f =>
           L.tileLayer(
             `https://tilecache.rainviewer.com${f.path}/256/{z}/{x}/{y}/2/1_1.png`,
-            { opacity: 0.6, zIndex: 5 }
+            { opacity: 0.65, zIndex: 5, attribution: 'RainViewer' }
           )
         )
         layersRef.current = layers
-        layers[0].addTo(map)
+        if (layers.length > 0) layers[0].addTo(map)
         setFrameCount(layers.length)
         setLoaded(true)
       })
@@ -64,6 +60,7 @@ export default function RadarMap({ location }) {
       if (animRef.current) clearInterval(animRef.current)
       map.remove()
       instanceRef.current = null
+      layersRef.current = []
     }
   }, [location.lat, location.lon])
 
@@ -88,12 +85,10 @@ export default function RadarMap({ location }) {
   }, [playing, loaded])
 
   function togglePlay() {
-    if (!playing) {
-      setPlaying(true)
-    } else {
-      setPlaying(false)
-      if (animRef.current) clearInterval(animRef.current)
-    }
+    setPlaying(p => {
+      if (p && animRef.current) clearInterval(animRef.current)
+      return !p
+    })
   }
 
   return (
@@ -143,7 +138,7 @@ export default function RadarMap({ location }) {
           </span>
         </div>
       </div>
-      <div ref={mapRef} style={{ height: '360px', width: '100%' }} />
+      <div ref={mapRef} style={{ height: '380px', width: '100%' }} />
     </div>
   )
 }
