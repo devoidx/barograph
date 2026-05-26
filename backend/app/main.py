@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import weather
+from app.routers import historical, records, weather
 
 app = FastAPI(title="Barograph API", version="0.1.0")
 
@@ -13,6 +13,8 @@ app.add_middleware(
 )
 
 app.include_router(weather.router, prefix="/api/v1/weather")
+app.include_router(historical.router, prefix="/api/v1/historical")
+app.include_router(records.router, prefix="/api/v1/records")
 
 
 @app.get("/health")
