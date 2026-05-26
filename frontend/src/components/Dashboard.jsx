@@ -6,14 +6,12 @@ import DailyForecast from './DailyForecast'
 import WindPanel from './WindPanel'
 import UVPanel from './UVPanel'
 import SolarPanel from './SolarPanel'
+import RainfallChart from './RainfallChart'
+import RecordsPanel from './RecordsPanel'
+import MonthlyStats from './MonthlyStats'
 
-export default function Dashboard({ location }) {
-  const { data, isLoading, error } = useQuery({
-    queryKey: ['current', location.lat, location.lon],
-    queryFn: () => fetchCurrent(location.lat, location.lon),
-  })
-
-  if (isLoading) return (
+function Spinner() {
+  return (
     <div style={{
       display: 'flex',
       alignItems: 'center',
@@ -33,6 +31,15 @@ export default function Dashboard({ location }) {
       Fetching weather data...
     </div>
   )
+}
+
+export default function Dashboard({ location }) {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['current', location.lat, location.lon],
+    queryFn: () => fetchCurrent(location.lat, location.lon),
+  })
+
+  if (isLoading) return <Spinner />
 
   if (error) return (
     <div style={{
@@ -66,6 +73,11 @@ export default function Dashboard({ location }) {
         />
         <SolarPanel daily={forecast.daily} />
       </div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+        <MonthlyStats location={location} />
+        <RecordsPanel location={location} />
+      </div>
+      <RainfallChart location={location} />
     </div>
   )
 }
