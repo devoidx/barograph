@@ -28,14 +28,14 @@ export default function RadarMap({ location }) {
       zoomControl: true,
       attributionControl: true,
       minZoom: 4,
-      maxZoom: 8,
+      maxZoom: 7,
     })
     instanceRef.current = map
     map.setView([location.lat, location.lon], 6)
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors',
-      maxZoom: 8,
+      maxZoom: 7,
     }).addTo(map)
 
     L.circleMarker([location.lat, location.lon], {
@@ -53,12 +53,14 @@ export default function RadarMap({ location }) {
         const nowcast = (data.radar.nowcast || []).slice(0, 2)
         const frames = [...past, ...nowcast]
         framesRef.current = frames
-        const layers = frames.map(f =>
-          L.tileLayer(
+        const layers = frames.map(f => {
+          const layer = L.tileLayer(
             `https://tilecache.rainviewer.com${f.path}/256/{z}/{x}/{y}/2/1_1.png`,
-            { opacity: 0.65, zIndex: 5, maxZoom: 8, attribution: 'RainViewer' }
+            { opacity: 0.65, zIndex: 5, maxZoom: 7, attribution: 'RainViewer' }
           )
-        )
+          layer.on('tileerror', () => {})
+          return layer
+        })
         layersRef.current = layers
         if (layers.length > 0) layers[0].addTo(map)
         setFrameCount(layers.length)
