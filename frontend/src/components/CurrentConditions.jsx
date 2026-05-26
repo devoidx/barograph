@@ -157,7 +157,7 @@ export default function CurrentConditions({ forecast, airQuality, locationName }
               fontSize: '13px', fontWeight: '500',
               color: uviColour(c.uv_index),
             }}>
-              {c.uv_index.toFixed(1)} — {uviLabel(c.uv_index)}
+              {c.uv_index?.toFixed(1) ?? "—"} — {uviLabel(c.uv_index)}
             </span>
           </div>
         </Card>
@@ -177,17 +177,17 @@ export default function CurrentConditions({ forecast, airQuality, locationName }
           <div style={{ flex: 1 }} />
           {airQuality.current?.pm2_5 != null && (
             <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-              PM2.5: {airQuality.current.pm2_5.toFixed(1)} µg/m³
+              PM2.5: {airQuality.current.pm2_5?.toFixed(1)} µg/m³
             </span>
           )}
           {airQuality.current?.pm10 != null && (
             <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-              PM10: {airQuality.current.pm10.toFixed(1)} µg/m³
+              PM10: {airQuality.current.pm10?.toFixed(1)} µg/m³
             </span>
           )}
           {airQuality.current?.nitrogen_dioxide != null && (
             <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-              NO₂: {airQuality.current.nitrogen_dioxide.toFixed(1)} µg/m³
+              NO₂: {airQuality.current.nitrogen_dioxide?.toFixed(1)} µg/m³
             </span>
           )}
         </Card>
