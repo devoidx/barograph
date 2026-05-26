@@ -3,6 +3,9 @@ import { fetchCurrent } from '../api/weather'
 import CurrentConditions from './CurrentConditions'
 import HourlyForecast from './HourlyForecast'
 import DailyForecast from './DailyForecast'
+import WindPanel from './WindPanel'
+import UVPanel from './UVPanel'
+import SolarPanel from './SolarPanel'
 
 export default function Dashboard({ location }) {
   const { data, isLoading, error } = useQuery({
@@ -55,6 +58,14 @@ export default function Dashboard({ location }) {
       />
       <HourlyForecast hourly={forecast.hourly} />
       <DailyForecast daily={forecast.daily} />
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
+        <WindPanel current={forecast.current} />
+        <UVPanel
+          current={forecast.current}
+          dailyMaxUV={forecast.daily.uv_index_max?.[0]}
+        />
+        <SolarPanel daily={forecast.daily} />
+      </div>
     </div>
   )
 }
