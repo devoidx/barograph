@@ -6,6 +6,7 @@ import DailyForecast from './DailyForecast'
 import WindPanel from './WindPanel'
 import UVPanel from './UVPanel'
 import SolarPanel from './SolarPanel'
+import PollenPanel from './PollenPanel'
 import RainfallChart from './RainfallChart'
 import RecordsPanel from './RecordsPanel'
 import MonthlyStats from './MonthlyStats'
@@ -74,8 +75,13 @@ export default function Dashboard({ location }) {
         <SolarPanel daily={forecast.daily} />
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-        <MonthlyStats location={location} />
-        <RecordsPanel location={location} />
+        <PollenPanel airQuality={air_quality} />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            <MonthlyStats location={location} />
+            <RecordsPanel location={location} />
+          </div>
+        </div>
       </div>
       <RainfallChart location={location} />
     </div>
