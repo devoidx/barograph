@@ -46,7 +46,7 @@ export default function UVPanel({ current, dailyMaxUV }) {
 
       <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', marginBottom: '8px' }}>
         <span style={{ fontSize: '36px', fontWeight: '300', color: colour, lineHeight: 1 }}>
-          {uvi.toFixed(1)}
+          {uvi?.toFixed(1) ?? "—"}
         </span>
         <span style={{ fontSize: '14px', fontWeight: '500', color: colour }}>
           {uviLabel(uvi)}
@@ -87,7 +87,7 @@ export default function UVPanel({ current, dailyMaxUV }) {
       </div>
       {dailyMaxUV != null && (
         <div style={{ fontSize: '11px', color: 'var(--text-hint)', marginTop: '4px' }}>
-          Max today: {dailyMaxUV.toFixed(1)}
+          Max today: {dailyMaxUV?.toFixed(1)}
         </div>
       )}
     </div>
