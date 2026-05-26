@@ -27,13 +27,14 @@ export default function RadarMap({ location }) {
     const map = L.map(mapRef.current, {
       zoomControl: true,
       attributionControl: true,
+      maxZoom: 12,
     })
     instanceRef.current = map
     map.setView([location.lat, location.lon], 7)
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors',
-      maxZoom: 19,
+      maxZoom: 12,
     }).addTo(map)
 
     L.circleMarker([location.lat, location.lon], {
@@ -54,7 +55,7 @@ export default function RadarMap({ location }) {
         const layers = frames.map(f =>
           L.tileLayer(
             `https://tilecache.rainviewer.com${f.path}/256/{z}/{x}/{y}/2/1_1.png`,
-            { opacity: 0.65, zIndex: 5, attribution: 'RainViewer' }
+            { opacity: 0.65, zIndex: 5, maxZoom: 12, attribution: 'RainViewer' }
           )
         )
         layersRef.current = layers
@@ -127,7 +128,7 @@ export default function RadarMap({ location }) {
           textTransform: 'uppercase',
           letterSpacing: '0.6px',
         }}>
-          Rain Radar
+          Rain Radar · last 60 mins + nowcast
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           {timeLabel && (
@@ -141,7 +142,6 @@ export default function RadarMap({ location }) {
               {timeLabel}
             </span>
           )}
-          {/* Frame scrubber */}
           {frameCount > 0 && (
             <div style={{ display: 'flex', gap: '3px', alignItems: 'center' }}>
               {Array.from({ length: frameCount }).map((_, i) => (
