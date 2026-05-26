@@ -10,6 +10,7 @@ import PollenPanel from './PollenPanel'
 import RainfallChart from './RainfallChart'
 import RecordsPanel from './RecordsPanel'
 import MonthlyStats from './MonthlyStats'
+import RadarMap from './RadarMap'
 
 function Spinner() {
   return (
@@ -76,13 +77,12 @@ export default function Dashboard({ location }) {
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
         <PollenPanel airQuality={air_quality} />
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-            <MonthlyStats location={location} />
-            <RecordsPanel location={location} />
-          </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+          <MonthlyStats location={location} />
+          <RecordsPanel location={location} />
         </div>
       </div>
+      <RadarMap location={location} />
       <RainfallChart location={location} />
     </div>
   )
