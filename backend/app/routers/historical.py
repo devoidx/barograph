@@ -7,6 +7,9 @@ from app.services.open_meteo import get_historical
 
 router = APIRouter()
 
+def yesterday() -> date:
+    return date.today() - timedelta(days=1)
+
 
 @router.get("/monthly")
 async def monthly_summary(
@@ -21,6 +24,9 @@ async def monthly_summary(
             end = date(year + 1, 1, 1) - timedelta(days=1)
         else:
             end = date(year, month + 1, 1) - timedelta(days=1)
+        end = min(end, yesterday())
+        if start > yesterday():
+            return {"year": year, "month": month, "error": "no data yet"}
         data = await get_historical(lat, lon, str(start), str(end))
         return _summarise(data, year, month)
     except Exception as e:
@@ -35,7 +41,9 @@ async def yearly_summary(
 ) -> dict[str, Any]:
     try:
         start = date(year, 1, 1)
-        end = date(year, 12, 31)
+        end = min(date(year, 12, 31), yesterday())
+        if start > yesterday():
+            return {"year": year, "error": "no data yet"}
         data = await get_historical(lat, lon, str(start), str(end))
         return _summarise(data, year)
     except Exception as e:
@@ -49,7 +57,7 @@ async def rainfall_by_year(
     years: int = 10,
 ) -> dict[str, Any]:
     try:
-        end = date.today()
+        end = yesterday()
         start = date(end.year - years, 1, 1)
         data = await get_historical(lat, lon, str(start), str(end))
         daily = data.get("daily", {})
