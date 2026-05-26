@@ -1,5 +1,23 @@
 export default function RadarMap({ location }) {
-  const windyUrl = `https://embed.windy.com/embed2.html?lat=${location.lat}&lon=${location.lon}&detailLat=${location.lat}&detailLon=${location.lon}&width=650&height=450&zoom=9&level=surface&overlay=rain&product=ecmwf&menu=&message=true&marker=true&calendar=now&pressure=true&type=map&location=coordinates&detail=&metricWind=km%2Fh&metricTemp=%C2%B0C&radarRange=-1`
+  const { lat, lon } = location
+  const params = new URLSearchParams({
+    lat: lat.toFixed(4),
+    lon: lon.toFixed(4),
+    detailLat: lat.toFixed(4),
+    detailLon: lon.toFixed(4),
+    zoom: '9',
+    level: 'surface',
+    overlay: 'rain',
+    product: 'ecmwf',
+    message: 'true',
+    marker: 'true',
+    pressure: 'true',
+    type: 'map',
+    metricWind: 'km/h',
+    metricTemp: '°C',
+  })
+
+  const windyUrl = `https://embed.windy.com/embed2.html?${params.toString()}`
 
   return (
     <div style={{
@@ -23,13 +41,12 @@ export default function RadarMap({ location }) {
         }}>
           Weather Map
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <span style={{ fontSize: '10px', color: 'var(--text-hint)' }}>
-            Radar · Wind · Satellite · Lightning — powered by Windy
-          </span>
-        </div>
+        <span style={{ fontSize: '10px', color: 'var(--text-hint)' }}>
+          Radar · Wind · Satellite · Lightning — powered by Windy
+        </span>
       </div>
       <iframe
+        key={`${lat}-${lon}`}
         src={windyUrl}
         style={{
           width: '100%',
