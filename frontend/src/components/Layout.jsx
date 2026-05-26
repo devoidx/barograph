@@ -1,16 +1,50 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Moon, Sun, MapPin, Wind } from 'lucide-react'
 import LocationSearch from './LocationSearch'
 import Dashboard from './Dashboard'
 
 const DEFAULT_LOCATION = {
-  name: 'London',
-  lat: 51.5085,
-  lon: -0.1257,
+  name: 'St. Ives, Cambridgeshire',
+  lat: 52.3298,
+  lon: -0.0739,
 }
 
 export default function Layout({ theme, onThemeToggle }) {
-  const [location, setLocation] = useState(DEFAULT_LOCATION)
+  const [location, setLocation] = useState(null)
+  const [detecting, setDetecting] = useState(true)
+
+  useEffect(() => {
+    if (!navigator.geolocation) {
+      setLocation(DEFAULT_LOCATION)
+      setDetecting(false)
+      return
+    }
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          const { latitude: lat, longitude: lon } = pos.coords
+          const res = await fetch(
+            `https://geocoding-api.open-meteo.com/v1/reverse?latitude=${lat}&longitude=${lon}&language=en`
+          )
+          const geo = await res.json()
+          setLocation({
+            name: geo.name || 'My Location',
+            lat,
+            lon,
+          })
+        } catch {
+          setLocation({ ...DEFAULT_LOCATION, lat: pos.coords.latitude, lon: pos.coords.longitude })
+        } finally {
+          setDetecting(false)
+        }
+      },
+      () => {
+        setLocation(DEFAULT_LOCATION)
+        setDetecting(false)
+      },
+      { timeout: 5000 }
+    )
+  }, [])
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg-secondary)' }}>
@@ -49,7 +83,7 @@ export default function Layout({ theme, onThemeToggle }) {
             color: 'var(--text-hint)',
           }}>
             <MapPin size={12} />
-            <span>{location.name}</span>
+            <span>{detecting ? 'Detecting...' : location?.name}</span>
           </div>
           <button
             onClick={onThemeToggle}
@@ -72,7 +106,27 @@ export default function Layout({ theme, onThemeToggle }) {
       </header>
 
       <main style={{ maxWidth: '1100px', margin: '0 auto', padding: '1.5rem' }}>
-        <Dashboard location={location} />
+        {!detecting && location && <Dashboard location={location} />}
+        {detecting && (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '4rem',
+            color: 'var(--text-hint)',
+            fontSize: '14px',
+            gap: '10px',
+          }}>
+            <div style={{
+              width: '18px', height: '18px',
+              border: '2px solid var(--border)',
+              borderTopColor: 'var(--accent)',
+              borderRadius: '50%',
+              animation: 'spin 0.8s linear infinite',
+            }} />
+            Detecting your location...
+          </div>
+        )}
       </main>
 
       <footer style={{
