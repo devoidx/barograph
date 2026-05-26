@@ -31,15 +31,15 @@ export default function MonthlyStats({ location }) {
   if (error || !data) return null
 
   const stats = [
-    { icon: '🌡️', label: 'Highest temp', value: data.temp_max != null ? `${data.temp_max}°C` : '—' },
-    { icon: '🥶', label: 'Lowest temp', value: data.temp_min != null ? `${data.temp_min}°C` : '—' },
-    { icon: '📊', label: 'Mean temp', value: data.temp_mean != null ? `${data.temp_mean}°C` : '—' },
-    { icon: '🌧️', label: 'Total rainfall', value: data.rainfall_total_mm != null ? `${data.rainfall_total_mm} mm` : '—' },
-    { icon: '☀️', label: 'Sunshine hours', value: data.sunshine_hours != null ? `${data.sunshine_hours} hrs` : '—' },
-    { icon: '🔆', label: 'Max UV', value: data.uv_max != null ? `${data.uv_max}` : '—' },
-    { icon: '💨', label: 'Max wind', value: data.wind_max_kmh != null ? `${data.wind_max_kmh} km/h` : '—' },
-    { icon: '🌱', label: 'Total ET', value: data.et_total_mm != null ? `${data.et_total_mm} mm` : '—' },
-  ]
+    { icon: '🌡️', label: 'Highest temp', value: data.temp_max != null ? `${data.temp_max}°C` : null },
+    { icon: '🥶', label: 'Lowest temp', value: data.temp_min != null ? `${data.temp_min}°C` : null },
+    { icon: '📊', label: 'Mean temp', value: data.temp_mean != null ? `${data.temp_mean}°C` : null },
+    { icon: '🌧️', label: 'Total rainfall', value: data.rainfall_total_mm != null ? `${data.rainfall_total_mm} mm` : null },
+    { icon: '☀️', label: 'Sunshine hours', value: data.sunshine_hours != null ? `${data.sunshine_hours} hrs` : null },
+    { icon: '🔆', label: 'Max UV', value: data.uv_max != null ? `${data.uv_max}` : null },
+    { icon: '💨', label: 'Max wind', value: data.wind_max_kmh != null ? `${data.wind_max_kmh} km/h` : null },
+    { icon: '🌱', label: 'Total ET', value: data.et_total_mm != null ? `${data.et_total_mm} mm` : null },
+  ].filter(s => s.value !== null)
 
   return (
     <div style={{

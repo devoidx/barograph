@@ -43,9 +43,18 @@ export default function RecordsPanel({ location }) {
     </div>
   )
 
-  if (error) return null
+  if (error || !data) return null
 
   const r = data
+  const records = [
+    { icon: '🌡️', label: 'Highest temperature', record: r.highest_temp, fmt: v => `${v}°C` },
+    { icon: '🥶', label: 'Lowest temperature', record: r.lowest_temp, fmt: v => `${v}°C` },
+    { icon: '🌧️', label: 'Wettest day', record: r.most_rain_day, fmt: v => `${v} mm` },
+    { icon: '💨', label: 'Strongest wind', record: r.max_wind_speed, fmt: v => `${v} km/h` },
+    { icon: '🌪️', label: 'Strongest gust', record: r.max_gust, fmt: v => `${v} km/h` },
+    { icon: '🔆', label: 'Highest UV', record: r.max_uv, fmt: v => `${v}` },
+    { icon: '☀️', label: 'Most sunshine', record: r.most_sunshine, fmt: v => `${(v / 3600).toFixed(1)} hrs` },
+  ].filter(item => item.record.value !== null)
 
   return (
     <div style={{
@@ -63,50 +72,16 @@ export default function RecordsPanel({ location }) {
       }}>
         Records (last 5 years)
       </div>
-      <Record
-        icon="🌡️"
-        label="Highest temperature"
-        value={r.highest_temp.value != null ? `${r.highest_temp.value}°C` : '—'}
-        date={r.highest_temp.date}
-      />
-      <Record
-        icon="🥶"
-        label="Lowest temperature"
-        value={r.lowest_temp.value != null ? `${r.lowest_temp.value}°C` : '—'}
-        date={r.lowest_temp.date}
-      />
-      <Record
-        icon="🌧️"
-        label="Wettest day"
-        value={r.most_rain_day.value != null ? `${r.most_rain_day.value} mm` : '—'}
-        date={r.most_rain_day.date}
-      />
-      <Record
-        icon="💨"
-        label="Strongest wind"
-        value={r.max_wind_speed.value != null ? `${r.max_wind_speed.value} km/h` : '—'}
-        date={r.max_wind_speed.date}
-      />
-      <Record
-        icon="🌪️"
-        label="Strongest gust"
-        value={r.max_gust.value != null ? `${r.max_gust.value} km/h` : '—'}
-        date={r.max_gust.date}
-      />
-      <Record
-        icon="🔆"
-        label="Highest UV"
-        value={r.max_uv.value != null ? `${r.max_uv.value}` : '—'}
-        date={r.max_uv.date}
-      />
-      <div style={{ borderBottom: 'none' }}>
-        <Record
-          icon="☀️"
-          label="Most sunshine"
-          value={r.most_sunshine.value != null ? `${(r.most_sunshine.value / 3600).toFixed(1)} hrs` : '—'}
-          date={r.most_sunshine.date}
-        />
-      </div>
+      {records.map((item, i) => (
+        <div key={item.label} style={{ borderBottom: i < records.length - 1 ? '' : 'none' }}>
+          <Record
+            icon={item.icon}
+            label={item.label}
+            value={item.fmt(item.record.value)}
+            date={item.record.date}
+          />
+        </div>
+      ))}
     </div>
   )
 }
